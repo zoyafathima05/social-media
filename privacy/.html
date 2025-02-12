@@ -1,0 +1,119 @@
+//backend
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log(err));
+
+// User Schema
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+  profilePrivacy: { type: String, enum: ["Public", "Friends", "Private"], default: "Public" },
+  friends: [String], // List of friend user IDs
+});
+const User = mongoose.model("User", UserSchema);
+
+// Post Schema
+const PostSchema = new mongoose.Schema({
+  userId: String,
+  content: String,
+  privacy: { type: String, enum: ["Public", "Friends", "Private"], default: "Public" },
+  timestamp: { type: Date, default: Date.now },
+});
+const Post = mongoose.model("Post", PostSchema);
+
+// User Registration
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+  const hashed
+
+//frontend
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+const API_URL = "http://localhost:5000";
+
+export default function Feed({ userId }) {
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    axios.get(`${API_URL}/posts/${userId}`).then((res) => {
+      setPosts(res.data);
+    });
+  }, [userId]);
+
+  return (
+    <div className="p-5">
+      <h2 className="text-xl font-bold">📢 Feed</h2>
+      {posts.map((post) => (
+        <div key={post._id} className="border p-3 mt-3">
+          <p>{post.content}</p>
+          <small>🔒 {post.privacy}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+import { useState } from "react";
+import axios from "axios";
+
+const API_URL = "http://localhost:5000";
+
+export default function PostForm({ userId }) {
+  const [content, setContent] = useState("");
+  const [privacy, setPrivacy] = useState("Public");
+
+  const createPost = async () => {
+    await axios.post(`${API_URL}/post`, { userId, content, privacy });
+    setContent("");
+  };
+
+  return (
+    <div className="p-5 border">
+      <textarea
+        className="w-full p-2 border"
+        placeholder="What's on your mind?"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+      />
+      <select
+        className="p-2 border mt-2"
+        value={privacy}
+        onChange={(e) => setPrivacy(e.target.value)}
+      >
+        <option value="Public">Public</option>
+        <option value="Friends">Friends</option>
+        <option value="Private">Private</option>
+      </select>
+      <button className="bg-blue-500 text-white p-2 mt-2" onClick={createPost}>
+        Post
+      </button>
+    </div>
+  );
+}
+import Feed from "./Feed";
+import PostForm from "./PostForm";
+
+function App() {
+  const userId = "65abcd123456"; // Example user ID
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center">
+      <PostForm userId={userId} />
+      <Feed userId={userId} />
+    </div>
+  );
+}
+
+export default App;
